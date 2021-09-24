@@ -1,23 +1,39 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
-using namespace std;
+#include <numeric>
+#include <boost/filesystem.hpp>
 
-double lambda = 0.25;
+#include "util.h"
+using namespace std;
+namespace fs = boost::filesystem;
+
+double lambda = 0.1;
 const double K = 10;
 const double K2 = 1 / K / K;
-
+// Xt+1 = Xt + lambda * dt * L(Xt) eq8 in "implicit fairing"
 int main()
 {
-    cv::Mat img = cv::imread("data/house.png", cv::IMREAD_GRAYSCALE);
-    cv::imwrite("output/img.png", img);
+    string outdir = "output/cv/lam" + to_string(lambda) + "/";
+
+    cv::Mat img = cv::imread("data/shell.png", cv::IMREAD_GRAYSCALE);
+    cv::imwrite(outdir + "img.png", img);
+
+    if (!fs::exists(outdir))
+        fs::create_directories(outdir);
+
     cv::Mat It;
     img.convertTo(It, CV_32FC1);
-
     for (int iter = 0; iter <= 1000; ++iter)
     {
+        auto start = get_time();
+
         cv::Mat dx, dy;
         cv::Sobel(It, dx, CV_32F, 1, 0, 3); // gradient along x
         cv::Sobel(It, dy, CV_32F, 0, 1, 3); // gradient along y
+        // cout << "dx\n"
+        //      << dx << endl;
+        // cout << "dy\n"
+        //      << dy << endl;
         // cv::imshow("dx", dx);
         // cv::imshow("dy", dy);
 
@@ -59,7 +75,12 @@ int main()
                 float ddI = (Cn + Cp) * (In - Ip) +
                             (Cs + Cp) * (Is - Ip) +
                             (Ce + Cp) * (Ie - Ip) +
-                            (Cw + Cp) * (Iw - Ip);
+                            (Cw + Cp) * (Iw - Ip); // divergence(I)
+
+                // float ddI = (In - Ip) +
+                //             (Is - Ip) +
+                //             (Ie - Ip) +
+                //             (Iw - Ip); // pure laplace blurring
 
                 LI.at<float>(i, j) = ddI;
                 if (fabs(ddI) > maxLI)
@@ -68,19 +89,20 @@ int main()
             }
         }
 
-        lambda = 100 / maxLI;
-        printf("iter%d: lambda=%f, maxLI=%f, intLI=%f\n", iter, lambda, maxLI, intLI);
-        It += lambda / 4. * LI;
+        // lambda = 100 / maxLI;
+        // It += lambda * 0.25 * LI;
+        It += lambda * LI;
+
+        // 0.001933s for 1 iter
+        printf("iter%d: lambda=%f, maxLI=%f, intLI=%f time=%f\n", iter, lambda, maxLI, intLI, get_time() - start);
         if (iter % 100 == 0)
         {
-            // cv::Mat LITmp;
-            // LI.convertTo(LITmp, CV_8U);
-            cv::imshow("output/LI" + to_string(iter) + ".png", LI);
-            cv::waitKey(-1);
+            // cv::imshow("output/LI" + to_string(iter) + ".png", LI);
+            // cv::waitKey(-1);
 
             cv::Mat ItTmp;
             It.convertTo(ItTmp, CV_8U);
-            cv::imwrite("output/It" + to_string(iter) + ".png", ItTmp);
+            cv::imwrite(outdir + to_string(iter) + ".png", ItTmp);
         }
     }
 
