@@ -32,3 +32,4 @@ target_link_libraries(laplace ${OpenCV_LIBRARIES} Eigen3::Eigen)
 
 add_executable(implicit implicit.cpp)
 target_link_libraries(implicit ${OpenCV_LIBRARIES} Eigen3::Eigen ${Boost_LIBRARIES})
+

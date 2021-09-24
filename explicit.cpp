@@ -16,7 +16,8 @@ int main()
     string outdir = "output/cv/lam" + to_string(lambda) + "/";
 
     cv::Mat img = cv::imread("data/shell.png", cv::IMREAD_GRAYSCALE);
-    cv::imwrite(outdir + "img.png", img);
+    // cv::resize(img, img, cv::Size(1280, 800));
+    // cv::imwrite(outdir + "img.png", img);
 
     if (!fs::exists(outdir))
         fs::create_directories(outdir);
@@ -93,7 +94,7 @@ int main()
         // It += lambda * 0.25 * LI;
         It += lambda * LI;
 
-        // 0.001933s for 1 iter
+        // 0.001933s for 1 iter 636x398
         printf("iter%d: lambda=%f, maxLI=%f, intLI=%f time=%f\n", iter, lambda, maxLI, intLI, get_time() - start);
         if (iter % 100 == 0)
         {
