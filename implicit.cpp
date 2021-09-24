@@ -15,7 +15,7 @@ using namespace std;
 typedef Eigen::SparseMatrix<double> SpMat; // declares a column-major sparse matrix type of double
 typedef Eigen::Triplet<double> T;
 
-double lambda = 0.1;
+double lambda = 1;
 bool isImplicit = true;
 const double K = 10;
 const double K2 = 1 / K / K;
