@@ -19,7 +19,7 @@ typedef Eigen::Matrix<Float, -1, -1> mat_t;
 typedef Eigen::Matrix<Float, -1, 1> vec_t;
 
 int float_bytes = CV_32F; // 2^5 32bits
-Float lambda = 100.0;
+Float lambda = 1000.0;
 bool isImplicit = true;
 const Float K = 10;
 const Float K2 = 1 / K / K;
@@ -57,6 +57,12 @@ void buildProblem(mat_t &C, std::vector<T> &coefficients, int rows, int cols)
             insertCoefficient(id, i + 1, j, Cs + Cp, coefficients, rows, cols);
             insertCoefficient(id, i, j - 1, Cw + Cp, coefficients, rows, cols);
             insertCoefficient(id, i, j + 1, Ce + Cp, coefficients, rows, cols);
+
+            // Add additional two links
+            Float Cne = (i == 0 || j == cols - 1) ? 0 : C(i - 1, j + 1);
+            Float Csw = (i == rows - 1 || j == 0) ? 0 : C(i + 1, j - 1);
+            insertCoefficient(id, i - 1, j + 1, Cne + Cp, coefficients, rows, cols);
+            insertCoefficient(id, i + 1, j - 1, Csw + Cp, coefficients, rows, cols);
         }
     }
 }

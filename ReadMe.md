@@ -2,6 +2,13 @@
 1. Scale-Space and Edge Detection Using Anisotropic Diffusion
 2. Implicit Fairing of Irregular Meshes using Diffusion and Curvature Flow
 
+# compile the program
+mkdir build; cd build; cmake ..; make -j8;
+
+# run the program
+1. ./build/smooth2d
+2. ./build/implicit
+3. ./build/explicit
 # Result
 1. Double precision is 2 times slower than single precision
 2. Explicit method: lambda <= 0.1, one_step_time=0.001s
